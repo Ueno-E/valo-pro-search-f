@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ player.name }} の詳細</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/show.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="player-header">
+                {% if player.team %}
+                {% set file_name = player.team|lower|replace(' ', '_')|replace('.', '_') %}
+                {% set replacements = {'KRÜ Esports':'kr_esports', 'Leviatán':'leviatn'} %}
+                <img src="{{ url_for('static', filename='images/teams/' + (replacements[player.team] if player.team in replacements else player.team|lower|replace(' ','_') ) + '.png') }}"
+                     alt="{{ player.team }} Logo"
+                     onerror="this.onerror=null;this.src='https://placehold.co/80x80/f7f9fc/0d1e3d?text={{ player.team }}';">
+                {% endif %}
+                <h1>{{ player.name }}</h1>
+            </div>
+
+            <div class="right-aligned-group">
+                <div class="sns-container">
+                    {% if player.vlr_url %}
+                    <a href="{{ player.vlr_url }}" target="_blank" class="sns-icon vlr-icon">vlr.gg</a>
+                    {% endif %}
+                    {% if player.sns_x_url %}
+                    <a href="{{ player.sns_x_url }}" target="_blank" class="sns-icon">
+                        <img src="{{ url_for('static', filename='images/sns/x.png') }}" alt="X (Twitter) Icon">
+                    </a>
+                    {% endif %}
+                    {% if player.sns_twitch_url %}
+                    <a href="{{ player.sns_twitch_url }}" target="_blank" class="sns-icon">
+                        <img src="{{ url_for('static', filename='images/sns/twitch.png') }}" alt="Twitch Icon">
+                    </a>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('index') }}" class="back-link">&larr; 戻る</a>
+            </div>
+        </div>
+
+        <h2 class="section-title">基本情報</h2>
+        <div class="card-container">
+            {% if player.team %}
+            <div class="card">
+                <h3>チーム</h3>
+                <p>{{ player.team }}</p>
+            </div>
+            {% endif %}
+            {% if player.country %}
+            <div class="card">
+                <h3>出身</h3>
+                <p>{{ player.country }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <h2 class="section-title">VALORANT 設定</h2>
+        <div class="card-container">
+            {% if player.sensitivity_dpi %}
+            <div class="card">
+                <h3>DPI</h3>
+                <p>{{ player.sensitivity_dpi }}</p>
+            </div>
+            {% endif %}
+            {% if player.sensitivity_in_game %}
+            <div class="card">
+                <h3>ゲーム内感度</h3>
+                <p>{{ player.sensitivity_in_game }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if player.crosshair_code %}
+        <div class="card" style="margin-top: 1rem;">
+            <h3>クロスヘアコード</h3>
+            <p>{{ player.crosshair_code }}</p>
+        </div>
+        {% endif %}
+
+        <h2 class="section-title">使用デバイス</h2>
+        <div class="card-container">
+            {% for device_type in ['mouse', 'keyboard', 'mousepad'] %}
+                {% if player[device_type] %}
+                <div class="card">
+                    <h3>{{ device_type|capitalize }}</h3>
+                    <p>{{ player[device_type] }}</p>
+                    <div class="device-buttons">
+                        <a href="https://www.google.com/search?q={{ player[device_type] | urlencode }}" target="_blank"
+                           class="google-btn">Google</a>
+                        <a href="https://www.amazon.co.jp/s?k={{ player[device_type] | urlencode }}" target="_blank"
+                           class="amazon-btn">Amazon</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if player.youtube_video_ids %}
+        <h2 class="section-title">関連動画</h2>
+        <div class="card-container">
+            {% for video_id in player.youtube_video_ids %}
+            <div class="card youtube-video-card">
+                <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+                    <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                        src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

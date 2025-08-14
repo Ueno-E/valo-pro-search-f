@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ばろぷろさーち</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="main-header">
+            <div class="main-logo-container">
+                <img src="{{ url_for('static', filename='images/logo/logo.png') }}" alt="ばろぷろさーち Logo">
+                <h1 class="main-title">ばろぷろさーち</h1>
+            </div>
+            <div class="header-info">
+                <span class="last-updated">最終更新日: 2025-08-14</span>
+                <span class="headsup_text">必ずしも正しい情報とは限らないのでご了承ください。</span>
+            </div>
+        </div>
+
+        <div class="selection-group-card">
+            <div class="form-section">
+                <h2>地域を選択</h2>
+                <div id="region-radio-group" class="radio-group">
+                    {% for region in regions %}
+                    <div class="radio-item">
+                        <input type="radio" name="region" id="region_{{ region }}" value="{{ region }}">
+                        <label for="region_{{ region }}">
+                            <img src="{{ url_for('static', filename='images/regions/' + region|lower + '.png') }}"
+                                alt="{{ region }} Logo"
+                                onerror="this.onerror=null;this.src='https://placehold.co/80x80/e2e8f0/0d1e3d?text={{ region }}';">
+                            <span>{{ region }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="teams-section" class="form-section hidden">
+                <h2>チームを選択</h2>
+                <div id="team-radio-group" class="radio-group"></div>
+            </div>
+
+            <div id="players-section" class="form-section hidden">
+                <h2>選手を選択</h2>
+                <div id="player-list">
+                    {% if players %}
+                    {% for player in players %}
+                    <div class="player-list-item">
+                        <a href="{{ url_for('player_detail', name=player.name) }}">
+                            {{ player.name }}
+                        </a>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section search-card">
+            <h2>選手を検索</h2>
+            <input type="text" id="player-search-box" placeholder="選手名を入力..."
+                style="width: 100%; padding: 0.75rem; border-radius: 4px; border: 1px solid #cbd5e1; box-sizing: border-box;">
+            <div id="search-results-list" class="player-list" style="margin-top: 1rem;">
+                {% if search_results %}
+                {% for player in search_results %}
+                <div class="player-list-item">
+                    <a href="{{ url_for('player_detail', name=player.name) }}">
+                        {{ player.name }}
+                    </a>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-section search-card">
+            <h2>感度から検索</h2>
+            <div id="sensitivity-radio-group" class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" name="sensitivity_type" id="sens_low" value="low">
+                    <label for="sens_low">
+                        <span>ローセンシ</span>
+                        <small>DPI800 0.25以下</small>
+                        <small>(eDPI 200以下)</small>
+                    </label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="sensitivity_type" id="sens_middle" value="middle">
+                    <label for="sens_middle">
+                        <span>ミドルセンシ</span>
+                    </label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="sensitivity_type" id="sens_high" value="high">
+                    <label for="sens_high">
+                        <span>ハイセンシ</span>
+                        <small>DPI800 0.5以上</small>
+                        <small>(eDPI 400以上)</small>
+                    </label>
+                </div>
+            </div>
+            <div id="sensitivity-results-list" class="player-list" style="margin-top: 1rem;">
+                {% if sensitivity_results %}
+                {% for player in sensitivity_results %}
+                <div class="player-list-item">
+                    <a href="{{ url_for('player_detail', name=player.name) }}">
+                        {{ player.name }}
+                    </a>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script> const teams = JSON.parse('{{ teams | tojson }}'); </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
