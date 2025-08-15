@@ -15,7 +15,7 @@
             <div class="player-header">
                 {% if player.team %}
                 {% set file_name = player.team|lower|replace(' ', '_')|replace('.', '_') %}
-                {% set replacements = {'KRÜ Esports':'kr_esports', 'Leviatán':'leviatn'} %}
+                {% set replacements = {'Gen.G':'gen_g', 'KRÜ Esports':'kr_esports', 'Leviatán':'leviatn'} %}
                 <img src="{{ url_for('static', filename='images/teams/' + (replacements[player.team] if player.team in replacements else player.team|lower|replace(' ','_') ) + '.png') }}"
                      alt="{{ player.team }} Logo"
                      onerror="this.onerror=null;this.src='https://placehold.co/80x80/f7f9fc/0d1e3d?text={{ player.team }}';">
