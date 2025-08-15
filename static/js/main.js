@@ -10,6 +10,7 @@ const searchResultsList = document.getElementById('search-results-list');
 const sensitivityRadioGroup = document.getElementById('sensitivity-radio-group');
 const sensitivityResultsList = document.getElementById('sensitivity-results-list');
 
+// eDPI計算＋ソート（感度順用）
 function calculateEdpiAndSort(players) {
     return players.map(player => {
         const dpi = typeof player.sensitivity_dpi === 'number' ? player.sensitivity_dpi : null;
@@ -22,6 +23,11 @@ function calculateEdpiAndSort(players) {
         if (b.eDPI === null) return -1;
         return a.eDPI - b.eDPI;
     });
+}
+
+// 名前順ソート
+function sortByName(players) {
+    return players.slice().sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
 }
 
 function updateTeams(selectedRegion) {
@@ -80,7 +86,7 @@ async function updatePlayers(selectedTeamId) {
     try {
         const response = await fetch(`/api/teams/${selectedTeamId}/players`);
         let players = await response.json();
-        players = calculateEdpiAndSort(players);
+        players = sortByName(players); // チーム別は名前順に変更
         playersCache[selectedTeamId] = players;
         renderPlayerList(players, playerList);
     } catch (error) {
@@ -110,6 +116,7 @@ function renderPlayerList(players, resultsContainer) {
     }
 }
 
+// 🔹 検索ボックス（先頭一致優先 → サーバー順を保持）
 playerSearchBox.addEventListener('input', async (e) => {
     const query = e.target.value.trim();
 
@@ -118,7 +125,7 @@ playerSearchBox.addEventListener('input', async (e) => {
         try {
             const response = await fetch(`/api/players/search?query=${encodeURIComponent(query)}`);
             let players = await response.json();
-            players = calculateEdpiAndSort(players);
+            // サーバーが先頭一致優先で返しているので、ここで並び替えしない
             renderPlayerList(players, searchResultsList);
         } catch (error) {
             console.error('Error fetching search results:', error);
@@ -129,6 +136,7 @@ playerSearchBox.addEventListener('input', async (e) => {
     }
 });
 
+// 感度検索（感度順ソートあり）
 sensitivityRadioGroup.addEventListener('change', async (e) => {
     const sensitivityType = e.target.value;
     sensitivityResultsList.innerHTML = '<p>検索中...</p>';

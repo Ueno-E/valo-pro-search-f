@@ -6,9 +6,11 @@ from urllib.parse import quote
 
 app = Flask(__name__)
 
+# JSONデータ読み込み
 with open(os.path.join(app.root_path, './data/players.json'), encoding='utf-8') as f:
     players_data = json.load(f)
 
+# チームリスト作成
 teams = []
 seen_teams = set()
 for p in players_data:
@@ -43,16 +45,28 @@ def player_detail(name):
         abort(404)
     return render_template('player_detail.html', player=player)
 
+# チームの選手一覧（アルファベット順）
 @app.route('/api/teams/<team_id>/players')
 def api_team_players(team_id):
     filtered = [p for p in players_data if p.get("team") == team_id]
+    filtered.sort(key=lambda x: x["name"].lower())
     return jsonify(filtered)
 
+# 選手検索（先頭一致優先）
 @app.route('/api/players/search')
 def api_search_players():
     from flask import request, jsonify
-    query = request.args.get("query", "").lower()
-    result = [p for p in players_data if query in p["name"].lower()]
+    query = request.args.get("query", "").lower().strip()
+    if not query:
+        return jsonify([])
+
+    # 1. 入力文字で始まる選手
+    starts_with = [p for p in players_data if p["name"].lower().startswith(query)]
+    # 2. 含まれる選手（ただし starts_with に含まれていないもの）
+    contains = [p for p in players_data if query in p["name"].lower() and p not in starts_with]
+
+    # 両方を結合して返す
+    result = starts_with + contains
     return jsonify(result)
 
 @app.route('/api/players/sensitivity_search')
